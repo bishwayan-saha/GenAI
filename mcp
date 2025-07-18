@@ -1,0 +1,68 @@
+{
+    "mcpServers": {
+      "airbnb": {
+        "command": "npx",
+        "args": [
+          "-y",
+          "@openbnb/mcp-server-airbnb",
+          "--ignore-robots-txt"
+        ]
+      }
+    }
+  }
+
+
+{
+  "mcpServers": {
+    "qdrant": {
+      "command": "uvx",
+      "args": [
+        "mcp-server-qdrant"
+      ],
+      "env": {
+        "QDRANT_URL": "https://60772798-b077-4e69-baaf-1351e45fe7be.europe-west3-0.gcp.cloud.qdrant.io",
+        "QDRANT_API_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3MiOiJtIn0.JBUbdstkeJt-UFzIneAeSd7GzqFvz3XhdMIlnUBr6SI",
+        "COLLECTION_NAME": "personal",
+        "EMBEDDING_MODEL": "sentence-transformers/all-MiniLM-L6-v2"
+      }
+    },
+    "chroma": {
+      "command": "uvx",
+      "args": [
+        "chroma-mcp",
+        "--client-type",
+        "persistent",
+        "--data-dir",
+        "./artifacts/chromadb"
+      ]
+    },
+    "pinecone": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@pinecone-database/mcp"
+      ],
+      "env": {
+        "PINECONE_API_KEY": "pcsk_3vu8ec_EEVkcXroUNfzGnCc6Si9bnyUYEGHqA3ABw5ZWmCdVJJE82TdRMUh1CwD8CEg5Sv"
+      }
+    },
+    "astra-db-mcp": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@datastax/astra-db-mcp"
+      ],
+      "env": {
+        "ASTRA_DB_APPLICATION_TOKEN": "AstraCS:MhjJFAdYQyZAptcyTSWbbTJT:bbd5ea9fcb1fb4a2044122a15f418fb005c54f83a59cc0e590567e6ea489b8a0",
+        "ASTRA_DB_API_ENDPOINT": "https://bd952333-3981-41bd-aa63-f35ce5346f4b-us-east-2.apps.astra.datastax.com"
+      }
+    }
+  }
+}
+
+
+
+
+                command="npx",
+                args=["-y", "exa-mcp-server"],
+                env={"EXA_API_KEY": "464ca2ee-e29f-4290-ab83-8054f2181ec5"},
