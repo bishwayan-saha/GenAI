@@ -1,0 +1,74 @@
+version: '3.8'
+
+networks:
+  interopae-dev:
+    driver: bridge
+
+services:
+  db_interopae:
+    image: mongo:latest
+    container_name: db_interopae
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+      - ./interopdb_data:/docker-entrypoint-initdb.d/interopdb_data:ro   # Place your dump or .js/.sh files here for automatic import
+      - ./mongo-init.sh:/docker-entrypoint-initdb.d/mongo-init.sh:ro
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_DB_CLUSTER}   # Specify the cluster (database) name
+    networks:
+      - interopae-dev
+  mongo-express:
+    image: mongo-express
+    container_name: mongo-express
+    restart: always
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_URL: mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@${MONGO_DB_HOST}:${MONGO_DB_PORT}/${MONGO_DB_CLUSTER}?authSource=${MONGO_AUTH_SOURCE}
+      ME_CONFIG_MONGODB_ENABLE_ADMIN: "false"
+      ME_CONFIG_MONGODB_AUTH_DATABASE: ${MONGO_INITDB_ROOT_USERNAME}
+      ME_CONFIG_MONGODB_AUTH_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      ME_CONFIG_MONGODB_AUTH_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+    networks:
+      - interopae-dev
+
+  interopae_ui:
+    image: ${LOGIN_SERVER}/interopae/interopae_ui
+    container_name: interopae_ui
+    restart: always
+    ports:
+      - "4173:4173"
+    networks:
+      - interopae-dev
+
+  interopae_auth:
+    image: ${LOGIN_SERVER}/interopae/interopae_auth
+    container_name: interopae_auth
+    restart: always
+    ports:
+      - "5002:5002"
+    environment:
+      DATABASE_URL: mongodb://${MONGO_INITDB_ROOT_USERNAME}:${MONGO_INITDB_ROOT_PASSWORD}@${MONGO_DB_HOST}:${MONGO_DB_PORT}/?authSource=${MONGO_AUTH_SOURCE}
+      MONGO_DB_CLUSTER: ${MONGO_DB_CLUSTER}
+    networks:
+      - interopae-dev
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  interopae_agent:
+    image: ${LOGIN_SERVER}/interopae/interopae_agent
+    container_name: interopae_agent
+    restart: always
+    ports:
+      - "5001:5001"
+    networks:
+      - interopae-dev
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+volumes: # Ensure this is also at the top level if you're using volumes
+  mongo_data:
